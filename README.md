@@ -1,1 +1,2 @@
-# Na2BaMn-PO4-2
+# trihb
+Classical Heisenberg model on triangular lattice

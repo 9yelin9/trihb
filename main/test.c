@@ -1,16 +1,16 @@
 #include "trihb.h"
 
 int main(int argc, char *argv[]) {
-	if(argc < 2) {
-		printf("%s <L>\n", argv[0]);
+	if(argc < 1) {
+		printf("%s\n", argv[0]);
 		exit(1);
 	}
 	omp_set_num_threads(1);
 
 	Env env = {
-		.L = atoi(argv[1]),
-		.N = N(env.L),
-		.M = 1e3,
+		.Mmc = 1e3,
+		.L = 10,
+		.N = env.L * env.L,
 		.h = 1.2,
 		.D = 0,
 		.T = -1,
@@ -27,9 +27,9 @@ int main(int argc, char *argv[]) {
 		memset(&obs, 0, sizeof(obs));
 		RunMonteCarlo(env, lat, &obs);
 
-		Mz  = obs.mz / env.M;	
-		Rho = RHO(env.N, env.T, obs.rho1 / env.M, obs.rho2 / env.M);
-		Ozz = obs.ozz / env.M;
+		Mz  = obs.mz / env.Mmc;	
+		Rho = RHO(env.N, env.T, obs.rho1 / env.Mmc, obs.rho2 / env.Mmc);
+		Ozz = obs.ozz / env.Mmc;
 
 		printf("%16f%16f%16f%16f%16f%16f\n", env.h, env.D, env.T, Mz, Rho, Ozz);
 	}
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 	CalcRho(env, lat, &obs.rho1, &obs.rho2);
 	CalcOzz(env, lat, &obs.ozz);
 
-	printf("L=%d : e=%f mz=%f rho1=%f rho2=%f rho=%f ozz=%f\n", env.L, CalcEnergyL(env, lat), obs.mz, obs.rho1, obs.rho2, RHO(env.N, env.T, obs.rho1, obs.rho2), obs.ozz);
+	printf("L=%d : mz=%f rho1=%f rho2=%f rho=%f ozz=%f\n", env.L, obs.mz, obs.rho1, obs.rho2, RHO(env.N, env.T, obs.rho1, obs.rho2), obs.ozz);
 	*/
 
 	return 0;

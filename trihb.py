@@ -7,6 +7,7 @@ os.environ['OPENBLAS_NUM_THREADS'] = str(num_thread)
 
 import re
 import sys
+import h5py
 import time
 import argparse
 import numpy as np
@@ -41,9 +42,7 @@ def GenScript(h, D, T, v_init, v_final, dv):
 	os.makedirs('data/'+dir_data, exist_ok=True)
 		
 	fn = 'data/%s/script.txt' % dir_data
-	with open(fn, 'w') as f:
-		f.write('%d\n' % len(v_arr))
-		np.savetxt(f, v_arr, fmt='%10f')
+	np.savetxt(fn, v_arr, fmt='%10f')
 
 	print('GenScript(%s)' % fn)
 
@@ -51,9 +50,9 @@ def RegExSub(val, string):
 	return float(re.sub(val, '', re.search('%s[-]?\d+[.]\d+' % val, string).group()))
 
 def GenJob(dir_data, init_mode, Meq, Mmc, L, q='openmp.q@phase09'):
-	Meq, Mmc, L = float(Meq), float(Mmc), int(L)
+	Meq, Mmc, L = int(float(Meq)), int(float(Mmc)), int(L)
 
-	dir_save = '%s/L%d_Mmc%.e/' % (dir_data, L, Mmc) if Meq == 0 else '%s/L%d_Meq%.e_Mmc%.e/' % (dir_data, L, Meq, Mmc)
+	dir_save = '%s/L%d_Mmc%.e/' % (dir_data, L, Meq+Mmc) if init_mode == 'mc' else '%s/L%d_Meq%.e_Mmc%.e/' % (dir_data, L, float(Meq), float(Mmc))
 	os.makedirs(dir_save, exist_ok=True)
 	os.makedirs(dir_save + 'job/', exist_ok=True)
 	os.makedirs(dir_save + 'log/', exist_ok=True)
@@ -65,7 +64,7 @@ def GenJob(dir_data, init_mode, Meq, Mmc, L, q='openmp.q@phase09'):
 				for line_j in fj:
 					if re.search('#[$] -q', line_j): f.write('#$ -q %s\n' % q)
 					elif re.search('#[$] -o', line_j): f.write('#$ -o %s/log/$JOB_NAME.log\n' % dir_save)
-					elif re.search('###', line_j): f.write('./mc %s %s %.e %.e %d %s' % (dir_data, init_mode, Meq, Mmc, L, line_s))
+					elif re.search('###', line_j): f.write('./mc %s %s %d %d %d %s' % (dir_data, init_mode, Meq, Mmc, L, line_s))
 					else: f.write(line_j)
 				fj.seek(0)
 
@@ -78,16 +77,22 @@ def ShowObs(dir_data_list, x, y):
 	ls_list = ['-', '--', ':']
 	fig, ax = plt.subplots(figsize=(8, 6))
 
-	for dn, mk, ls in zip(dir_data_list, mk_list, ls_list):
-		label = dn.split('/')[-2]
-		fn = dn + '/obs.txt'
-		if not os.path.isfile(fn): os.system('./obs %s' % dn)
-		df = pd.read_csv(fn, sep='\s+', comment='#', names=['h', 'D', 'T', 'mz', 'rho', 'ozz'])
+	for dir_data, mk, ls in zip(dir_data_list, mk_list, ls_list):
+		dn, label = dir_data.split('/')[-3:-1]
+		L = int(re.sub('L', '', re.search('L\d+', label).group()))
+		Mmc = int(float(re.sub('Mmc', '', re.search('Mmc\d+e[+]\d+', label).group())))
+		df = []
+		for h, D, T in np.genfromtxt('data/'+ dn + '/script.txt', dtype='d'):
+			with h5py.File(dir_data + '/h%.4f_D%.4f_T%.4f.h5' % (h, D, T), 'r') as f:
+				mz, rho1, rho2, ozz = np.array(list(f['obs'][()][0])) / Mmc
+				rho = (-2/(3*np.sqrt(3)*L*L)) * (rho1 + rho2/T)
+			df.append([h, D, T, mz, rho, ozz])
+		df = pd.DataFrame(df, columns=['h', 'D', 'T', 'mz', 'rho', 'ozz'])
 		ax.plot(df[x], df[y], marker=mk, ls=ls, fillstyle='none', label=label)
 
 	ax.grid(True)
 	ax.legend()
-	ax.set_title(re.sub('_vs.+', '', dir_data_list[0].split('/')[1]))
+	ax.set_title(dir_data_list[0].split('/')[1])
 	ax.set_xlabel(x)
 	ax.set_ylabel(y)
 	plt.show()

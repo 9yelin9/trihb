@@ -3,7 +3,7 @@
 
 const double r[DIM_L][DIM_L] = {{1, 0}, {0.5, root3h}}; // lattice vector
 const double r_sup[DIM_L][DIM_L] = {{1.5, root3h}, {1.5, -root3h}}; // C3 supercell lattice vector
-const double r_sub[N_SUB][DIM_L] = {{0, 0}, {-0.5, root3h}, {0.5, root3h}}; // C3 sublattice vector (C, A, B)
+const double r_sub[N_SUB][DIM_L] = {{0, 0}, {0.5, root3h}, {-0.5, root3h}}; // C3 sublattice vector (C, A, B)
 
 const double psi_coef[2][N_SUB] = {{-2*root6, root6, root6}, {0, -3*root2, 3*root2}}; // coefficient of C3 order parameter (C, A, B)
 const double e[3][DIM_L] = {{1, 0}, {0.5, root3h}, {-0.5, root3h}}; // unit vector
@@ -11,13 +11,20 @@ const double e[3][DIM_L] = {{1, 0}, {0.5, root3h}, {-0.5, root3h}}; // unit vect
 long seed = -1;
 
 void ReadLatObs(Env env, Lat *lat, Obs *obs, char *fn) {
+	if(-access(fn, 0)) {
+		printf("%s does not exist\n", fn);
+		exit(1);
+	}
+
 	hid_t file_id, dataset_id;
 
 	file_id = H5Fopen(fn, H5F_ACC_RDONLY, H5P_DEFAULT); 
 
+	// lat
 	dataset_id = H5Dopen2(file_id, "/lat", H5P_DEFAULT);
 	H5Dread(dataset_id, H5Dget_type(dataset_id), H5S_ALL, H5S_ALL, H5P_DEFAULT, lat);
 
+	// obs
 	dataset_id = H5Dopen2(file_id, "/obs", H5P_DEFAULT);
 	H5Dread(dataset_id, H5Dget_type(dataset_id), H5S_ALL, H5S_ALL, H5P_DEFAULT, obs);
 
@@ -51,7 +58,7 @@ void SaveLatObs(Env env, Lat *lat, Obs *obs, char *fn) {
 
 	dataspace_id = H5Screate_simple(1, (hsize_t[1]){1}, NULL);
 	dataset_id = H5Dcreate2(file_id, "/obs", datatype_id, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-	H5Dwrite(dataset_id, datatype_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, lat);
+	H5Dwrite(dataset_id, datatype_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, obs);
 
 	H5Dclose(dataset_id);
 	H5Sclose(dataspace_id);
@@ -77,7 +84,7 @@ void InitLat(Env env, Lat *lat) {
 		
 		cnt_alpha = 0;
 		for(j=0; j<N_SUB; j++) {
-			for(a=-1; a<2; a++) for(b=-1; b<2; b++) {
+			for(a=-env.L; a<env.L; a++) for(b=-env.L; b<env.L; b++) {
 				d2 = 0;
 				for(k=0; k<DIM_L; k++) {
 					r_ij[k] = a * r_sup[0][k] + b * r_sup[1][k] + r_sub[j][k] - lat[i].site[k];
@@ -113,10 +120,10 @@ void InitLat(Env env, Lat *lat) {
 					}
 				}
 			}
-			if(cnt_nn != N_NN) {
-				printf("Site %d has %d nn\n", i, cnt_nn);
-				exit(1);
-			}
+		}
+		if(cnt_nn != N_NN) {
+			printf("Site %d has %d nn\n", i, cnt_nn);
+			exit(1);
 		}
 	}
 }
@@ -237,6 +244,7 @@ void RunMonteCarlo(Env env, Lat *lat, Obs *obs) {
 		CalcMz(env, lat, &obs0.mz);
 		CalcRho(env, lat, &obs0.rho1, &obs0.rho2);
 		CalcOzz(env, lat, &obs0.ozz);
+		//printf("%d\t%f\t%f\t%f\t%f\n", i, obs0.mz, obs0.rho1, obs0.rho2, obs0.ozz);
 
 		if(i % ITV == 0) {
 			obs->mz   += obs0.mz;

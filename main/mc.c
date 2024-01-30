@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
 	char dir_save[BUF_SIZE], fn[BUF_SIZE], path_init[BUF_SIZE], path_save[BUF_SIZE];
 	sprintf(fn, "h%.4f_D%.4f_T%.4f.h5", env.h, env.D, env.T);
-	sprintf(path_init, "data/%s/L%d_Mmc%.e/%s", dir_data, env.L, (double)env.Meq, fn);
+	sprintf(path_init, "%s/L%d_Mmc%.e/%s", dir_data, env.L, (double)env.Meq, fn);
 
 	time_t t0=time(NULL);
 
@@ -33,25 +33,27 @@ int main(int argc, char *argv[]) {
 		}
 		else {
 			ReadLatObs(env, lat, &obs_mc, path_init);
+			printf("%f\t%f\t%f\t%f\n", obs_mc.mz, obs_mc.rho1, obs_mc.rho2, obs_mc.ozz);
 			RunMonteCarlo(env, lat, &obs_mc);
 		}
+		printf("%f\t%f\t%f\t%f\n", obs_mc.mz, obs_mc.rho1, obs_mc.rho2, obs_mc.ozz);
 
 		env.Mmc += env.Meq;
-		sprintf(dir_save, "data/%s/L%d_Mmc%.e", dir_data, env.L, (double)env.Mmc);
+		sprintf(dir_save, "%s/L%d_Mmc%.e", dir_data, env.L, (double)env.Mmc);
 		if(-access(dir_save, 0)) mkdir(dir_save, 0755);
 
 		sprintf(path_save, "%s/%s", dir_save, fn);
-		SaveLatObs(env, lat, &obs_mc, path_init);
+		SaveLatObs(env, lat, &obs_mc, path_save);
 	}
 	else if(strstr(init_mode, "eq")) {
 		ReadLatObs(env, lat, &obs_eq, path_init);
 		RunMonteCarlo(env, lat, &obs_mc);
 
-		sprintf(dir_save, "data/%s/L%d_Meq%.e_Mmc%.e", dir_data, env.L, (double)env.Meq, (double)env.Mmc);
+		sprintf(dir_save, "%s/L%d_Meq%.e_Mmc%.e", dir_data, env.L, (double)env.Meq, (double)env.Mmc);
 		if(-access(dir_save, 0)) mkdir(dir_save, 0755);
 
 		sprintf(path_save, "%s/%s", dir_save, fn);
-		SaveLatObs(env, lat, &obs_mc, path_init);
+		SaveLatObs(env, lat, &obs_mc, path_save);
 	}
 	else {
 		printf("\"%s\" is wrong init_mode\n", init_mode);

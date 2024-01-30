@@ -3,7 +3,8 @@ AR = ar rv
 RM = rm -rf
 
 USR_DIR = /home/9yelin9/.local
-MPI_DIR = /opt/mpi/gcc-4.8.5/openmpi-4.1.0
+#MPI_DIR = /opt/mpi/gcc-4.8.5/openmpi-4.1.0
+MPI_DIR = /opt/mpi/gcc-7.3.1/openmpi-4.1.4/
 HDF_DIR = /opt/hdf5/intel-2021.4.0/1.12.0
 
 CFLAGS = -g -O2 -Wall -mcmodel=medium -I../include -I$(USR_DIR)/include -I$(MPI_DIR)/include -I$(HDF_DIR)/include -fopenmp

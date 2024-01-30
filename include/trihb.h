@@ -17,9 +17,9 @@
 #define N_SUB 3 // number of sublattice
 
 //#define N_THETA 512 // number of theta (0 - pi)
-//#define N_PHI 1024 // number of phi (0 - 2*pi)
-#define N_THETA 32
-#define N_PHI 64
+//#define N_PHI 1024 // number of phi (0 - 2pi)
+#define N_THETA 16
+#define N_PHI 32
 
 #define N_NN 6 // number of nearest-neighbors
 #define D2_NN 1 // squared displacement of nearest-neighbors
@@ -41,7 +41,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-typedef struct Environment {
+typedef struct Environment { // 왠만하면 pointer로 넘겨주기!
 	int L; // length of lattice
 	int N; // size of lattice
 	int Meq; // num of equilibration iteration

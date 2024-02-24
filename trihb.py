@@ -15,89 +15,113 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-gs', '--genscript', nargs='+', type=float, help='<h> <D> <T> <v_init> <v_final> <dv> : GenScript\n* Enter -1 for the variable to set the range\n')
-parser.add_argument('-gj', '--genjob', nargs='+', help='<dir_data> <init_mode> <Meq> <Mmc> <L> [q=openmp.q@phase09]: GenJob\n')
-parser.add_argument('-so', '--showobs', nargs='+', help='<dir_data_list(sep=,)> <x=h,D,T> <y=mz,rho,ozz> : ShowObs\n')
-args = parser.parse_args()                                                                     
+parser.add_argument('-sl', '--showlat', nargs='+', help='<path_data> : ShowLat\n')
+parser.add_argument('-so', '--showobs', nargs='+', help='<dir_data_list(sep=,)> : ShowObs\n')
+args = parser.parse_args()                                                                      
 
-def GenScript(h, D, T, v_init, v_final, dv):
-	if v_init > v_final: dv = -dv
-	v_range = np.arange(v_init, v_final+dv, dv)
-	v_target = ''
-	dir_data = ''
-	
-	v_arr = []
-	for v, v_str in zip([h, D, T], ['h', 'D', 'T']):
-		if v < 0:
-			v_arr.append(v_range)
-			v_target = v_str
-		else:
-			v_arr.append([v for _ in v_range])
-			dir_data += '%s%.4f_' % (v_str, v)
-	v_arr = np.array(v_arr).T
-	
-	dir_data += '%sF%.4f_%sT%.4f' % (v_target, v_init, v_target, v_final)
-	tail = len([d for d in os.listdir('data/') if re.match(dir_data, d)])
-	if tail: dir_data += '_%d' % tail
-	os.makedirs('data/'+dir_data, exist_ok=True)
-		
-	fn = 'data/%s/script.txt' % dir_data
-	np.savetxt(fn, v_arr, fmt='%10f')
+mk_list = ['s', 'o', '^']
+ls_list = ['-', '--', ':']
+plt.rcParams.update({'font.size': 20})
 
-	print('GenScript(%s)' % fn)
-
-def RegExSub(val, string):
+def RegExSubInt(val, string):
+	return int(re.sub(val, '', re.search('%s\d+' % val, string).group()))
+def RegExSubFloat(val, string):
 	return float(re.sub(val, '', re.search('%s[-]?\d+[.]\d+' % val, string).group()))
 
-def GenJob(dir_data, init_mode, Meq, Mmc, L, q='openmp.q@phase09'):
-	Meq, Mmc, L = int(float(Meq)), int(float(Mmc)), int(L)
+def SaveFig(path, footer, fig):
+	paths = path.split('/')
+	dn, fn = '/'.join(paths[:-1]), paths[-1]
+	dn, fn = re.sub('data', 'fig', dn), re.sub('[.]txt|[.]dat|[.]h5', '_%s.png' % footer, fn)
+	os.makedirs(dn, exist_ok=True)
+	fig_name = dn+'/'+fn
+	fig.savefig(fig_name)
+	print('Figure saved at %s' % fig_name)
 
-	dir_save = '%s/L%d_Mmc%.e/' % (dir_data, L, Meq+Mmc) if init_mode == 'mc' else '%s/L%d_Meq%.e_Mmc%.e/' % (dir_data, L, float(Meq), float(Mmc))
-	os.makedirs(dir_save, exist_ok=True)
-	os.makedirs(dir_save + 'job/', exist_ok=True)
-	os.makedirs(dir_save + 'log/', exist_ok=True)
+def ShowLat(path_data):
+	Nt, Np = RegExSubInt('Nt', path_data), RegExSubInt('Np', path_data)
+	L = RegExSubInt('L', path_data)
+	T = RegExSubFloat('T', path_data)
+	mcs = int(float(re.sub('mcs', '', re.search('mcs\d+e[+]\d+', path_data).group())))
 
-	with open('%s/script.txt' % dir_data, 'r') as fs, open('job.sh', 'r') as fj:
-		for line_s in fs:
-			fn = '%s/job/%s.sh' % (dir_save, '_'.join(['%s%.4f' % (a, float(v)) for a, v in zip(['h', 'D', 'T'], line_s.split())]))
-			with open(fn, 'w') as f:
-				for line_j in fj:
-					if re.search('#[$] -q', line_j): f.write('#$ -q %s\n' % q)
-					elif re.search('#[$] -o', line_j): f.write('#$ -o %s/log/$JOB_NAME.log\n' % dir_save)
-					elif re.search('###', line_j): f.write('./mc %s %s %d %d %d %s' % (dir_data, init_mode, Meq, Mmc, L, line_s))
-					else: f.write(line_j)
-				fj.seek(0)
+	with h5py.File(path_data, 'r') as f:
+		data = f['lat'][()]
+		mz, rho1, rho2, ozz = np.array(list(f['obs'][()][0])) / mcs
+	site = data['site']
+	angle = []
+	for theta, phi in data['angle']:
+		theta = np.pi * (theta / Nt)
+		phi = 2*np.pi * (phi / Np)
+		angle.append([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
+	angle = np.array(angle)
+	rho = (-2/(3*np.sqrt(3)*L*L)) * (rho1 + rho2/T)
 
-	print('GenJob(%s)' % (dir_save))
+	fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+	norm = plt.Normalize(-1, 1)
 
-def ShowObs(dir_data_list, x, y):
-	dir_data_list = dir_data_list.split(',')
+	qv = ax.quiver(site[:, 0], site[:, 1], angle[:, 0], angle[:, 1], angle[:, 2], norm=norm, edgecolors='k', cmap='bwr', pivot='mid', scale_units='inches', scale=1.5, lw=1.0, width=0.01, headlength=3, headaxislength=3)
+	#sc = ax.scatter(site[:, 0], site[:, 1], c=angle[:, 2], norm=norm, cmap='bwr', edgecolors='k', s=200)
 
-	mk_list = ['s', 'o', '^']
-	ls_list = ['-', '--', ':']
-	fig, ax = plt.subplots(figsize=(8, 6))
-
-	for dir_data, mk, ls in zip(dir_data_list, mk_list, ls_list):
-		dn, label = dir_data.split('/')[-3:-1]
-		L = int(re.sub('L', '', re.search('L\d+', label).group()))
-		Mmc = int(float(re.sub('Mmc', '', re.search('Mmc\d+e[+]\d+', label).group())))
-		df = []
-		for h, D, T in np.genfromtxt('data/'+ dn + '/script.txt', dtype='d'):
-			with h5py.File(dir_data + '/h%.4f_D%.4f_T%.4f.h5' % (h, D, T), 'r') as f:
-				mz, rho1, rho2, ozz = np.array(list(f['obs'][()][0])) / Mmc
-				rho = (-2/(3*np.sqrt(3)*L*L)) * (rho1 + rho2/T)
-			df.append([h, D, T, mz, rho, ozz])
-		df = pd.DataFrame(df, columns=['h', 'D', 'T', 'mz', 'rho', 'ozz'])
-		ax.plot(df[x], df[y], marker=mk, ls=ls, fillstyle='none', label=label)
+	cax = ax.inset_axes([0.92, 0.05, 0.02, 0.3])
+	cb = plt.colorbar(qv, cax=cax, format='%d')
+	cb.ax.set_title('$S_z$', pad=15)
+	cb.set_ticks([-1, 1])
 
 	ax.grid(True)
-	ax.legend()
-	ax.set_title(dir_data_list[0].split('/')[1])
-	ax.set_xlabel(x)
-	ax.set_ylabel(y)
+	ax.set_axisbelow(True)
+	ax.set_aspect('equal')
+	ax.set_xticks(np.unique(site[:, 0]), labels=[])
+	ax.set_yticks(np.unique(site[:, 1]), labels=[])
+	ax.set_xlim([-0.5, max(site[:, 0])+0.5])
+	ax.set_ylim([-0.5, max(site[:, 1])+0.5])
+	ax.set_xlabel('$x$')
+	ax.set_ylabel('$y$')
+	fig.suptitle(r'$m_z=%.4f$ $\rho_s=%.4f$ $O_{zz}=%.4f$' % (mz, rho, ozz), fontsize='small')
+	SaveFig(path_data, 'lat', fig)
+	#plt.show()
+
+def ShowObs(dir_data_list):
+	dir_data_list = dir_data_list.split(',')
+	fig, ax = plt.subplots(1, 2, figsize=(16, 6), constrained_layout=True)
+
+	for i, dir_data in enumerate(dir_data_list):
+		label = dir_data.split('/')[1]
+		label = label[:label.index('h')]
+
+		L, M = RegExSubInt('L', dir_data), RegExSubInt('M', dir_data)
+		h, D = RegExSubFloat('h', dir_data), RegExSubFloat('D', dir_data)
+		mcs = int(float(re.sub('mcs', '', re.search('mcs\d+e[+]\d+', dir_data).group())))
+
+		df = []
+		for fn in ['%s/%s' % (dir_data, fn) for fn in os.listdir(dir_data) if re.search('T.+.h5', fn)]:
+			T = RegExSubFloat('T', fn)
+			with h5py.File(fn, 'r') as f:
+				mz, rho1, rho2, ozz = np.array(list(f['obs'][()][0])) / mcs
+			rho = (-2/(3*np.sqrt(3)*L*L)) * (rho1 + rho2/T)
+			df.append([h, D, T, mz, rho, ozz])
+		df = pd.DataFrame(df, columns=['h', 'D', 'T', 'mz', 'rho', 'ozz'])
+		ax[0].plot(df['T'], df['rho'], marker=mk_list[i], ls=ls_list[i], fillstyle='none', label=label)
+		ax[1].plot(df['T'], df['ozz'], marker=mk_list[i], ls=ls_list[i], fillstyle='none', label=label)
+		print('\n'+label, df, sep='\n')
+	print()
+
+	title = dir_data_list[0]
+	title = title[title.index('h'):title.index('_T')]
+	fig.suptitle(title, fontsize='medium')
+
+	for i, obs in enumerate(['rho', 'ozz']):
+		ax[i].grid(True)
+		ax[i].set_xlabel('T')
+		ax[i].set_ylabel(obs)
+	ax[0].set_ylim([-0.01, 0.31])
+	ax[1].set_ylim([-0.1, 3.1])
+	ax[1].legend(fontsize='x-small')
 	plt.show()
 
-if args.genscript: GenScript(*args.genscript)
-elif args.genjob: GenJob(*args.genjob)
+if args.showlat: ShowLat(*args.showlat)
 elif args.showobs: ShowObs(*args.showobs)
 else: parser.print_help()
+
+for h in [1.0, 2.0, 8.0]:
+	for T in [0.01, 0.5]:
+		ShowLat('data/Nt16_Np32_L6_M16_eqs1e+05_mcs1e+06_Tmin0.0100_Tmax0.5000/h%.4f_D0.0500_T%.4f.h5' % (h, T))
+

@@ -14,19 +14,22 @@
 #define DIM_A 2 // dimension of angle
 #define DIM_S 3 // dimension of spin
 
-#define N_SUB 3 // number of sublattice
+#define N_SUB 3 // number of sites in sublattice
 
-//#define N_THETA 512 // number of theta (0 - pi)
-//#define N_PHI 1024 // number of phi (0 - 2pi)
+//#define N_THETA 512 // number of theta (0 ~ pi) 
+//#define N_PHI 1024 // number of phi (0 ~ 2pi)
 #define N_THETA 16
 #define N_PHI 32
 
 #define N_NN 6 // number of nearest-neighbors
 #define D2_NN 1 // squared displacement of nearest-neighbors
 
-#define ITV 5 // itv between monte carlo steps (to avoid autocorrelation)
+#define ecs 10 // interval between exchange MC steps
 
-#define RHO(N, T, rho1, rho2) ((-2 / (3 * root3 * N)) * (rho1 + rho2 / T)) // spin stiffness
+#define DELTA(lat, T, m) ((1/T[m] - 1/T[m+1]) * (CalcEnergy(env, lat[m]) - CalcEnergy(env, lat[m+1]))) // exchange probability factor
+#define RHO(N, T, rho1, rho2) ((-2/(3*sqrt(3)*N)) * (rho1 + rho2/T)) // spin stiffness rho
+
+#define MIN(x, y) (x < y ? x : y)
 
 #include <omp.h>
 #include <hdf5.h>
@@ -41,26 +44,26 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-typedef struct Environment { // 왠만하면 pointer로 넘겨주기!
+typedef struct Environment {
+	char dir_save[BUF_SIZE]; // directory to save
+	int eqs; // num of equilibration steps
+	int mcs; // num of MC steps
 	int L; // length of lattice
 	int N; // size of lattice
-	int Meq; // num of equilibration iteration
-	int Mmc; // num of Monte Carlo iteration
+	int M; // num of replicas
 	double h; // magnetic field in z-direction
 	double D; // strength of single-ion anisotropy
-	double T; // temperature
 } Env;
 
 typedef struct Lattice {
-	int alpha; // idx of sublattice (0:C, 1:B, 2:A)
+	int alpha; // site in sublattice (0:C, 1:B, 2:A)
 	int angle[DIM_A]; // polar and azimuthal angle (theta, phi)
 	int nn[N_NN]; // idx of nearest-neighbors
 	double site[DIM_L]; // site
-	double r_ij[N_NN][DIM_L]; // displacement vector of nearest-neighbors (with PBC)
-	//struct Lat *nn[N_NN]; // addresses of nearest-neighbors
+	double r_ij[N_NN][DIM_L]; // displacement vector of nearest-neighbors in PBC
 } Lat;
 
-typedef struct Observables {
+typedef struct Observable {
 	double mz; // magnetization in z-direction
 	double rho1; // dot term of spin stiffness
 	double rho2; // cross term of spin stiffness
@@ -75,17 +78,19 @@ extern const double psi_coef[2][N_SUB]; // coefficients of psi
 extern const double e[3][DIM_L]; // nearest-neighbor unit vectors
 extern long seed; // seed for ran2
 
-void ReadLatObs(Env env, Lat *lat, Obs *obs, char *fn); // read lattice and observables (in binary)
-void SaveLatObs(Env env, Lat *lat, Obs *obs, char *fn); // write lattice and observables (in binary)
-void InitLat(Env env, Lat *lat); // initialize lattice 
-void CalcSpin(int *angle, double *spin); // calculate spin
-double CalcEnergy(Env env, Lat *lat, int idx); // calculate hamiltonian on site
-void MoveAngle(int *angle, int *angle_old); // move angle by ran2
-void RestAngle(int *angle, int *angle_old); // restore angle (angle = angle_old)
-void CalcMz(Env env, Lat *lat, double *mz); // calculate magnetization in z-direction
-void CalcRho(Env env, Lat *lat, double *rho1, double *rho2); // calculate expectation values in spin stiffness
-void CalcOzz(Env env, Lat *lat, double *ozz); // calculate C3 lattice symmetry order parameter
-void MonteCarlo(Env env, Lat *lat); // Monte Carlo algorithm
-void RunMonteCarlo(Env env, Lat *lat, Obs *obs); // run Monte Carlo simulation
+void SaveLatObs(Env *env, Lat **lat, Obs *obs, double *T); // write lattice and observables (in hdf5)
+void CalcSpin(int *angle, double *spin); // calcusitee spin
+double CalcEnergy(Env *env, Lat *lat); // calcusitee hamiltonian
+double CalcEnergySite(Env *env, Lat *lat, int idx); // calcusitee hamiltonian on site
+void FlipAngle(int *angle, int *angle_old); // flip angle
+void UndoAngle(int *angle, int *angle_old); // undo angle (angle = angle_old)
+void CalcMz(Env *env, Lat *lat, double *mz); // calcusitee magnetization in z-direction
+void CalcRho(Env *env, Lat *lat, double *rho1, double *rho2); // calcusitee expectation values in spin stiffness
+void CalcOzz(Env *env, Lat *lat, double *ozz); // calcusitee C3 sitetice symmetry order parameter
+void InitLat(Env *env, Lat **lat); // initialize lattice
+void InitT(Env *env, Lat **lat, double *T); // initialize T
+void MonteCarlo(Env *env, Lat *lat, double T); // MC algorithm
+void Exchange(Env *env, Lat **lat, double *T, int m); // exchange MC algorithm
+void RunMonteCarlo(Env *env, Lat **lat, Obs *obs, double *T, int mcs); // run MC simulation
 
 #endif

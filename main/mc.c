@@ -2,66 +2,42 @@
 
 int main(int argc, char *argv[]) {
 	if(argc < 2) {
-		printf("%s <dir_data> <init_mode=mc,eq> <Meq> <Mmc> <L> <h> <D> <T>\n", argv[0]);
+		printf("%s <L> <M> <eqs> <mcs> <h> <D> <T_min> <T_max>\n", argv[0]);
 		exit(1);
 	}
-	omp_set_num_threads(1);
 
-	char *dir_data=argv[1], *init_mode=argv[2];
+	int m;
 	Env env = {
-		.Meq = (int)atof(argv[3]),
-		.Mmc = (int)atof(argv[4]),
-		.L = atoi(argv[5]),
+		.L = atoi(argv[1]),
 		.N = env.L * env.L,
-		.h = atof(argv[6]),
-		.D = atof(argv[7]),
-		.T = atof(argv[8]),
+		.M = atoi(argv[2]),
+		.eqs = (int)atof(argv[3]),
+		.mcs = (int)atof(argv[4]),
+		.h = atof(argv[5]),
+		.D = atof(argv[6]),
 	};
-	Lat lat[env.N];
-	Obs obs_eq={0}, obs_mc={0};
+	double T_min=atof(argv[7]), T_max=atof(argv[8]), T[env.M];
+	for(m=0; m<env.M; m++) T[m] = T_min + (T_max - T_min) * m / (env.M-1);
 
-	char dir_save[BUF_SIZE], fn[BUF_SIZE], path_init[BUF_SIZE], path_save[BUF_SIZE];
-	sprintf(fn, "h%.4f_D%.4f_T%.4f.h5", env.h, env.D, env.T);
-	sprintf(path_init, "%s/L%d_Mmc%.e/%s", dir_data, env.L, (double)env.Meq, fn);
+	sprintf(env.dir_save, "data/Nt%d_Np%d_L%d_M%d_eqs%.e_mcs%.e_Tmin%.4f_Tmax%.4f", N_THETA, N_PHI, env.L, env.M, (double)env.eqs, (double)env.mcs, T_min, T_max);
+	if(-access(env.dir_save, 0)) mkdir(env.dir_save, 0755);
+	printf("dir_save : %s\n\n", env.dir_save);
+
+	Lat **lat=(Lat**)malloc(sizeof(Lat*) * env.M); for(m=0; m<env.M; m++) lat[m] = (Lat*)malloc(sizeof(Lat) * env.N);
+	Obs *obs=(Obs*)malloc(sizeof(Obs) * env.M);
 
 	time_t t0=time(NULL);
 
-	if(strstr(init_mode, "mc")) {
-		if(env.Meq == 0) {
-			InitLat(env, lat);
-			RunMonteCarlo(env, lat, &obs_mc);
-		}
-		else {
-			ReadLatObs(env, lat, &obs_mc, path_init);
-			printf("%f\t%f\t%f\t%f\n", obs_mc.mz, obs_mc.rho1, obs_mc.rho2, obs_mc.ozz);
-			RunMonteCarlo(env, lat, &obs_mc);
-		}
-		printf("%f\t%f\t%f\t%f\n", obs_mc.mz, obs_mc.rho1, obs_mc.rho2, obs_mc.ozz);
-
-		env.Mmc += env.Meq;
-		sprintf(dir_save, "%s/L%d_Mmc%.e", dir_data, env.L, (double)env.Mmc);
-		if(-access(dir_save, 0)) mkdir(dir_save, 0755);
-
-		sprintf(path_save, "%s/%s", dir_save, fn);
-		SaveLatObs(env, lat, &obs_mc, path_save);
-	}
-	else if(strstr(init_mode, "eq")) {
-		ReadLatObs(env, lat, &obs_eq, path_init);
-		RunMonteCarlo(env, lat, &obs_mc);
-
-		sprintf(dir_save, "%s/L%d_Meq%.e_Mmc%.e", dir_data, env.L, (double)env.Meq, (double)env.Mmc);
-		if(-access(dir_save, 0)) mkdir(dir_save, 0755);
-
-		sprintf(path_save, "%s/%s", dir_save, fn);
-		SaveLatObs(env, lat, &obs_mc, path_save);
-	}
-	else {
-		printf("\"%s\" is wrong init_mode\n", init_mode);
-		exit(1);
-	}
+	InitLat(&env, lat); //InitT(&env, lat, T);
+	RunMonteCarlo(&env, lat, obs, T, env.eqs); memset(obs, 0, sizeof(Obs) * env.M);
+	RunMonteCarlo(&env, lat, obs, T, env.mcs);
+	SaveLatObs(&env, lat, obs, T);
 
 	time_t t1=time(NULL);
-	printf("%s done : %lds\n", path_save, t1-t0);
+	printf("mc done : %lds\n", t1-t0);
+
+	for(m=0; m<env.M; m++) free(lat[m]); free(lat);
+	free(obs);
 
 	return 0;
 }

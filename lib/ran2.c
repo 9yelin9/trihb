@@ -20,6 +20,7 @@ float ran2(long *idum)
 	static long idum2=123456789;
 	static long iy=0;
 	static long iv[NTAB];
+#pragma omp threadprivate(idum2, iy, iv)
 	float temp;
 
 	if (*idum <= 0) {

@@ -7,34 +7,35 @@ int main(int argc, char *argv[]) {
 	}
 	omp_set_num_threads(1);
 
+	/*
 	Env env = {
-		.Mmc = 1e3,
+		.mcs = 1e3,
 		.L = 10,
 		.N = env.L * env.L,
 		.h = 1.2,
 		.D = 0,
-		.T = -1,
 	};
-	Lat lat[env.N];
-	Obs obs={0};
 
-	InitLat(env, lat);
+	Lat lat[N_REP][env.N];
+	Obs obs[N_REP];
 
-	int i;
+	int m;
+	double T_min=0.0001, T_max=2, T[N_REP];
+	for(m=0; m<N_REP; m++) T[m] = T_min + (T_max - T_min) * m / N_REP;
+
+	InitLat(&env, lat); InitT(&env, lat, T);
+
 	double Mz, Rho, Ozz;
-	for(i=10; i>0; i--) {
-		env.T = 0.05 * i;
-		memset(&obs, 0, sizeof(obs));
-		RunMonteCarlo(env, lat, &obs);
+	RunMonteCarlo(&env, lat, obs, T, env.mcs, env.mcs+1);
 
-		Mz  = obs.mz / env.Mmc;	
-		Rho = RHO(env.N, env.T, obs.rho1 / env.Mmc, obs.rho2 / env.Mmc);
-		Ozz = obs.ozz / env.Mmc;
+	for(m=0; m<N_REP; m++) {
+		Mz  = obs[m].mz / env.mcs;	
+		Rho = (-2/(3*sqrt(3)*env.N)) * (obs[m].rho1/env.mcs + (obs[m].rho2/env.mcs)/T[m]);
+		Ozz = obs[m].ozz / env.mcs;
 
-		printf("%16f%16f%16f%16f%16f%16f\n", env.h, env.D, env.T, Mz, Rho, Ozz);
+		printf("%16f%16f%16f%16f%16f%16f\n", env.h, env.D, T[m], Mz, Rho, Ozz);
 	}
 
-	/*
 	int i, j;
 	double spin_i[DIM_S];
 	for(i=0; i<env.N; i++) {

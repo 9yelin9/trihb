@@ -1,0 +1,57 @@
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.0500.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.0500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.050000    0.140940  -28.578520    0.087487    0.286844    2.670226
+mc done : 195s
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.1000.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.1000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.100000    0.140103  -30.722361    0.341491    0.291962    2.524492
+mc done : 191s
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.1500.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.1500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.150000    0.139582  -32.861111    0.761644    0.297052    2.358684
+mc done : 190s
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.2000.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.2000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.200000    0.139238  -34.315036    1.373420    0.293464    2.191740
+mc done : 189s
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.2500.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.2500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.250000    0.139292  -34.685949    2.236032    0.275223    2.042404
+mc done : 185s
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.3000.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.3000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.300000    0.139491  -34.354063    3.436049    0.244845    1.895990
+mc done : 183s
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.3500.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.3500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.350000    0.138982  -33.453273    5.044472    0.203575    1.745694
+mc done : 184s
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.4000.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.4000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.400000    0.137306  -32.570346    6.901029    0.163773    1.567775
+mc done : 183s
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.4500.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.4500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.450000    0.135036  -31.424095    8.942384    0.123512    1.387744
+mc done : 184s
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.5000.txt"
+Save as "data/L6_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.5000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.500000    0.132698  -30.206350   11.009157    0.087544    1.215673
+mc done : 184s
+
+# Job ID       : 25862
+# Job name     : L6_M14_eqs5_mcs6.sh
+# Time start   : Mon Feb 26 17:10:33 KST 2024
+# Time end     : Mon Feb 26 17:41:41 KST 2024
+# Time elapsed : 0h 31m 7.829848493s
+

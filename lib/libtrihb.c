@@ -13,10 +13,11 @@ void TestLat(Env *env, Lat **lat, int m, int site) {
 	int i;
 
 	printf("=============== rep %d : site %d ===============\n", m, site);
-	printf("angle = %d\t%d\n", lat[m][site].angle[0], lat[m][site].angle[1]);
 	printf("alpha = %d\n", lat[m][site].alpha);
 	printf("site = ");
 	for(i=0; i<DIM_L; i++) printf("%f\t", lat[m][site].site[i]);
+	printf("\nangle = ");
+	for(i=0; i<DIM_L; i++) printf("%f\t", lat[m][site].angle[i]);
 	printf("\nnn = ");
 	for(i=0; i<N_NN; i++) printf("%d\t", lat[m][site].nn[i]);
 	printf("\n\n");
@@ -36,17 +37,26 @@ void TestAlpha(Env *env, Lat **lat, int m) {
 	printf("\n");
 }
 
+void GetFileName(Env *env, char *dn, char *ext, char *fn) {
+	char dir_save[BUF_SIZE];
+	sprintf(dir_save, "%s/%s", env->dir_save, dn);
+	if(-access(dir_save, 0)) mkdir(dir_save, 0755);
+	sprintf(fn, "%s/h%.4f_D%.4f_T%.4f.%s", dir_save, env->h, env->D, env->T, ext);
+}
+
 void SaveLatObs(Env *env, Lat **lat, Obs *obs, double *T) {
-	int m;
 	char fn[BUF_SIZE];
 	hid_t file_id, datatype_lat_id, datatype_obs_id, dataset_id, dataspace_id;
+
+	GetFileName(env, "res", "h5", fn);
+	file_id = H5Fcreate(fn, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
 	// lat
 	datatype_lat_id = H5Tcreate(H5T_COMPOUND, sizeof(Lat));
 	H5Tinsert(datatype_lat_id, "alpha", HOFFSET(Lat, alpha), H5T_NATIVE_INT);
-	H5Tinsert(datatype_lat_id, "angle", HOFFSET(Lat, angle), H5Tarray_create2(H5T_NATIVE_INT,    1, (hsize_t[1]){DIM_A}));
 	H5Tinsert(datatype_lat_id, "nn",    HOFFSET(Lat, nn),    H5Tarray_create2(H5T_NATIVE_INT,    1, (hsize_t[1]){N_NN}));
 	H5Tinsert(datatype_lat_id, "site",  HOFFSET(Lat, site),  H5Tarray_create2(H5T_NATIVE_DOUBLE, 1, (hsize_t[1]){DIM_L}));
+	H5Tinsert(datatype_lat_id, "angle", HOFFSET(Lat, angle), H5Tarray_create2(H5T_NATIVE_DOUBLE, 1, (hsize_t[1]){DIM_A}));
 	H5Tinsert(datatype_lat_id, "r_ij",  HOFFSET(Lat, r_ij),  H5Tarray_create2(H5T_NATIVE_DOUBLE, 2, (hsize_t[2]){N_NN, DIM_L}));
 
 	// obs
@@ -56,38 +66,27 @@ void SaveLatObs(Env *env, Lat **lat, Obs *obs, double *T) {
 	H5Tinsert(datatype_obs_id, "rho2", HOFFSET(Obs, rho2), H5T_NATIVE_DOUBLE);
 	H5Tinsert(datatype_obs_id, "ozz",  HOFFSET(Obs, ozz),  H5T_NATIVE_DOUBLE);
 
-	printf("%12s%12s%12s%12s%12s%12s\n", "T", "mz", "rho1", "rho2", "rho", "ozz");
-	for(m=0; m<env->M; m++) {
-		sprintf(fn, "%s/h%.4f_D%.4f_T%.4f.h5", env->dir_save, env->h, env->D, T[m]);
-		file_id = H5Fcreate(fn, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+	dataspace_id = H5Screate_simple(1, (hsize_t[1]){env->N}, NULL);
+	dataset_id = H5Dcreate2(file_id, "/lat", datatype_lat_id, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	H5Dwrite(dataset_id, datatype_lat_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, lat[env->m]);
 
-		dataspace_id = H5Screate_simple(1, (hsize_t[1]){env->N}, NULL);
-		dataset_id = H5Dcreate2(file_id, "/lat", datatype_lat_id, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-		H5Dwrite(dataset_id, datatype_lat_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, lat[m]);
+	dataspace_id = H5Screate_simple(1, (hsize_t[1]){1}, NULL);
+	dataset_id = H5Dcreate2(file_id, "/obs", datatype_obs_id, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	H5Dwrite(dataset_id, datatype_obs_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, &obs[env->m]);
 
-		dataspace_id = H5Screate_simple(1, (hsize_t[1]){1}, NULL);
-		dataset_id = H5Dcreate2(file_id, "/obs", datatype_obs_id, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-		H5Dwrite(dataset_id, datatype_obs_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, &obs[m]);
-
-		H5Dclose(dataset_id);
-		H5Sclose(dataspace_id);
-		H5Fclose(file_id);
-
-		printf("%12f%12f%12f%12f%12f%12f\n", T[m], obs[m].mz/env->mcs, obs[m].rho1/env->mcs, obs[m].rho2/env->mcs, RHO(env->N, T[m], obs[m].rho1/env->mcs, obs[m].rho2/env->mcs), obs[m].ozz/env->mcs);
-	}
-	printf("\n");
 	H5Tclose(datatype_lat_id);
 	H5Tclose(datatype_obs_id);
+	H5Sclose(dataspace_id);
+	H5Dclose(dataset_id);
+	H5Fclose(file_id);
+
+	printf("Save as \"%s\"\n", fn);
 }
 
-void GetSpin(int *angle, double *spin) {
-	double theta, phi;
-	theta = M_PI * angle[0] / (N_THETA-1);
-	phi = 2*M_PI * angle[1] / (N_PHI-1);
-
-	spin[0] = sin(theta) * cos(phi);
-	spin[1] = sin(theta) * sin(phi);
-	spin[2] = cos(theta);
+void GetSpin(double *angle, double *spin) {
+	spin[0] = sin(angle[0]) * cos(angle[1]);
+	spin[1] = sin(angle[0]) * sin(angle[1]);
+	spin[2] = cos(angle[0]);
 }
 
 double CalcEnergy(Env *env, Lat *lat) {
@@ -124,15 +123,24 @@ double CalcEnergySite(Env *env, Lat *lat, int idx) {
 	return sum_J - env->h * sum_h - env->D * sum_D;
 }
 
-void FlipAngle(int *angle, int *angle_old) {
+void FlipAngle(double *angle, double *angle_old) {
 	int i;
+	double dot, spin[DIM_S], spin_old[DIM_S];
 	for(i=0; i<DIM_A; i++) angle_old[i] = angle[i];
+	GetSpin(angle_old, spin_old);
 
-	angle[0] = (int)(ran2(&seed) * N_THETA);
-	angle[1] = (int)(ran2(&seed) * N_PHI);
+	while(1) {
+		angle[0] = acos(RAND);
+		angle[1] = M_PI * RAND;
+		GetSpin(angle, spin);
+
+		dot = 0;
+		for(i=0; i<DIM_S; i++) dot += spin[i] * spin_old[i];
+		if(dot - (1 - 2*FLIP_LIMIT) > 0) break;
+	}
 }
 
-void UndoAngle(int *angle, int *angle_old) {
+void UndoAngle(double *angle, double *angle_old) {
 	int i;
 	for(i=0; i<DIM_A; i++) angle[i] = angle_old[i];
 }
@@ -198,8 +206,8 @@ void InitLat(Env *env, Lat **lat) {
 
 	// set angle, site and alpha
 	for(i=0; i<env->N; i++) {
-		lat[0][i].angle[0] = (int)(ran2(&seed) * N_THETA);
-		lat[0][i].angle[1] = (int)(ran2(&seed) * N_PHI);
+		lat[0][i].angle[0] = acos(RAND);
+		lat[0][i].angle[1] = M_PI * RAND;
 
 		for(k=0; k<DIM_L; k++)
 			lat[0][i].site[k] = (i/env->L) * r[0][k] + (i%env->L) * r[1][k];
@@ -252,8 +260,8 @@ void InitLat(Env *env, Lat **lat) {
 	// initialize other replicas
 	for(m=1; m<env->M; m++) {
 		for(i=0; i<env->N; i++) {
-			lat[m][i].angle[0] = (int)(ran2(&seed) * N_THETA);
-			lat[m][i].angle[1] = (int)(ran2(&seed) * N_PHI);
+			lat[m][i].angle[0] = acos(RAND);
+			lat[m][i].angle[1] = M_PI * RAND;
 
 			lat[m][i].alpha = lat[0][i].alpha;
 			for(j=0; j<DIM_L; j++) lat[m][i].site[j] = lat[0][i].site[j];
@@ -267,37 +275,9 @@ void InitLat(Env *env, Lat **lat) {
 	}
 }
 
-/*
-void InitT(Env *env, Lat *lat, double *T) {
-	int i, m, mcs=env->eqs;
-	double T0[env->M-1], p[env->M-1]={0}, c=0;
-
-	for(i=0; i<mcs; i++) {
-#pragma omp parallel for ordered
-		for(m=0; m<env->M; m++) MonteCarlo(env, lat[m*env->N], T[m]);
-		if(i%N_EXS == 0) Exchange(env, lat, T, (int)(ran2(&seed) * (env->M-1)));
-		if(i%1000 == 0) {
-			printf("%d\n", i);
-			for(m=0; m<env->M-1; m++) {
-				p[m] = MIN(1, exp(DELTA(lat, T, m)));
-				printf("%d\t%f\t%f\n", m, T[m], p[m]);
-			}
-			printf("\n");
-		}
-	}
-
-	for(m=0; m<env->M-1; m++) {
-		T0[m] = T[m];
-		c += p[m];
-	}
-	c /= env->M-1;
-	for(m=1; m<env->M; m++) T[m] = T[m-1] + (T[m] - T0[m-1]) * p[m-1] / c;
-}
-*/
-
 void MonteCarlo(Env *env, Lat *lat, double T) {
-	int i, idx, angle_old[DIM_A];
-	double e0, e1;
+	int i, idx;
+	double e0, e1, angle_old[DIM_A];
 
 	for(i=0; i<env->N; i++) {
 		idx = (int)(ran2(&seed) * env->N);
@@ -310,26 +290,43 @@ void MonteCarlo(Env *env, Lat *lat, double T) {
 	}
 }
 
-void Exchange(Env *env, Lat **lat, double *T, int m) {
+void Exchange(Env *env, Lat **lat, double *T) {
+	int m = (int)(ran2(&seed) * (env->M-1));
 	Lat *lat_tmp;
 
-	if(ran2(&seed) < exp(-DELTA(lat, T, m))) {
+	if(ran2(&seed) < exp(DELTA(lat, T, m))) {
 		lat_tmp = &(*lat[m]);
 		*lat[m] = *lat[m+1];
 		*lat[m+1] = *lat_tmp;
 	}
 }
 
-void RunMonteCarlo(Env *env, Lat **lat, Obs *obs, double *T, int mcs) {
+void RunEquilibration(Env *env, Lat **lat, double *T) {
+	int i, m;
+
+	for(i=0; i<env->eqs; i++) {
+#pragma omp parallel for ordered num_threads(env->M)
+		for(m=0; m<env->M; m++) MonteCarlo(env, lat[m], T[m]);
+	}
+}
+
+void RunMonteCarlo(Env *env, Lat **lat, Obs *obs, double *T) {
+	FILE *f; 
+	char fn[BUF_SIZE];
+	GetFileName(env, "log", "txt", fn);
+	f = fopen(fn, "w");
+
 	int i, m;
 	Obs *obs0=(Obs*)malloc(sizeof(Obs) * env->M);
 
-	for(i=1; i<mcs+1; i++) {
+	fprintf(f, "%10s%12s%12s%12s%12s%12s\n", "itr", "e", "mz", "rho1", "rho2", "ozz");
+	for(i=1; i<env->mcs+1; i++) {
 		memset(obs0, 0, sizeof(Obs) * env->M);
 
 #pragma omp parallel for ordered num_threads(env->M)
 		for(m=0; m<env->M; m++) {
 			MonteCarlo(env, lat[m], T[m]);
+
 			CalcMz(env, lat[m], &obs0[m].mz);
 			CalcRho(env, lat[m], &obs0[m].rho1, &obs0[m].rho2);
 			CalcOzz(env, lat[m], &obs0[m].ozz);
@@ -342,9 +339,20 @@ void RunMonteCarlo(Env *env, Lat **lat, Obs *obs, double *T, int mcs) {
 			obs[m].ozz  += obs0[m].ozz;
 		}
 
-		if(i%ecs == 0) Exchange(env, lat, T, (int)(ran2(&seed) * (env->M-1)));
+		fprintf(f, "%10d%12f%12f%12f%12f%12f\n", i, CalcEnergy(env, lat[env->m]), obs0[env->m].mz, obs0[env->m].rho1, obs0[env->m].rho2, obs0[env->m].ozz);
+		if(i % ECS == 0) Exchange(env, lat, T);
+	}
+
+	for(m=0; m<env->M; m++) {
+		obs[m].mz   /= env->mcs;
+		obs[m].rho1 /= env->mcs;
+		obs[m].rho2 /= env->mcs;
+		obs[m].ozz  /= env->mcs;
 	}
 
 	free(obs0);
+	fclose(f);
+
+	printf("Save as \"%s\"\n", fn);
 }
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 . /home/9yelin9/.bash_profile
 
-#$ -q openmp.q@phase09
-#$ -pe mpi 16
+#$ -q mpi.q@phase04
+#$ -pe mpi 14
 #$ -j y
 #$ -cwd
 #$ -o log/$JOB_NAME.log
@@ -10,7 +10,10 @@
 t0=$(date +%s.%N)
 t0_string=$(date)
 
-./mc 18 16 1e5 1e6 1.2 0.05 0.01 0.5
+for T in `seq 0.05 0.05 0.5`
+do
+	./mc 6 14 1e5 1e6 1.2 0.05 $T
+done
 
 t1=$(date +%s.%N)
 t1_string=$(date)

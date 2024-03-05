@@ -37,7 +37,6 @@
 #include <time.h>
 #include <stdio.h>
 #include <dirent.h>
-#include <lapack.h>
 #include <libgen.h>
 #include <stdlib.h>
 #include <string.h>

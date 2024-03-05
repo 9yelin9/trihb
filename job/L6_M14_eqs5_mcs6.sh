@@ -1,8 +1,8 @@
 #!/bin/bash
 . /home/9yelin9/.bash_profile
 
-#$ -q mpi.q@phase04
-#$ -pe mpi 14
+#$ -q all.q@phase10
+#$ -pe mpi_14 14
 #$ -j y
 #$ -cwd
 #$ -o log/$JOB_NAME.log

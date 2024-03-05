@@ -38,7 +38,7 @@ void TestAlpha(Env *env, Lat **lat, int m) {
 }
 
 void GetFileName(Env *env, char *dn, char *ext, char *fn) {
-	char dir_save[BUF_SIZE];
+	char dir_save[(int)(BUF_SIZE*1.5)];
 	sprintf(dir_save, "%s/%s", env->dir_save, dn);
 	if(-access(dir_save, 0)) mkdir(dir_save, 0755);
 	sprintf(fn, "%s/h%.4f_D%.4f_T%.4f.%s", dir_save, env->h, env->D, env->T, ext);
@@ -81,6 +81,11 @@ void SaveLatObs(Env *env, Lat **lat, Obs *obs, double *T) {
 	H5Fclose(file_id);
 
 	printf("Save as \"%s\"\n", fn);
+}
+
+void InitAngle(double *angle) {
+	angle[0] = acos(RAND);
+	angle[1] = M_PI * RAND;
 }
 
 void GetSpin(double *angle, double *spin) {
@@ -130,13 +135,12 @@ void FlipAngle(double *angle, double *angle_old) {
 	GetSpin(angle_old, spin_old);
 
 	while(1) {
-		angle[0] = acos(RAND);
-		angle[1] = M_PI * RAND;
+		InitAngle(angle);
 		GetSpin(angle, spin);
 
 		dot = 0;
 		for(i=0; i<DIM_S; i++) dot += spin[i] * spin_old[i];
-		if(dot - (1 - 2*FLIP_LIMIT) > 0) break;
+		if(dot > 1 - 2*FLIP_LIMIT) break;
 	}
 }
 
@@ -204,11 +208,15 @@ void InitLat(Env *env, Lat **lat) {
 	for(i=0; i<DIM_L; i++) for(j=0; j<DIM_L; j++)
 		r_lat[i][j] = env->L * r[i][j];
 
-	// set angle, site and alpha
+	// set angle (for all replicas)
 	for(i=0; i<env->N; i++) {
-		lat[0][i].angle[0] = acos(RAND);
-		lat[0][i].angle[1] = M_PI * RAND;
+		for(m=0; m<env->M; m++) {
+			InitAngle(lat[m][i].angle);
+		}
+	}
 
+	// set site and alpha
+	for(i=0; i<env->N; i++) {
 		for(k=0; k<DIM_L; k++)
 			lat[0][i].site[k] = (i/env->L) * r[0][k] + (i%env->L) * r[1][k];
 		
@@ -260,9 +268,6 @@ void InitLat(Env *env, Lat **lat) {
 	// initialize other replicas
 	for(m=1; m<env->M; m++) {
 		for(i=0; i<env->N; i++) {
-			lat[m][i].angle[0] = acos(RAND);
-			lat[m][i].angle[1] = M_PI * RAND;
-
 			lat[m][i].alpha = lat[0][i].alpha;
 			for(j=0; j<DIM_L; j++) lat[m][i].site[j] = lat[0][i].site[j];
 			for(j=0; j<N_NN; j++) {
@@ -320,7 +325,7 @@ void RunMonteCarlo(Env *env, Lat **lat, Obs *obs, double *T) {
 	Obs *obs0=(Obs*)malloc(sizeof(Obs) * env->M);
 
 	fprintf(f, "%10s%12s%12s%12s%12s%12s\n", "itr", "e", "mz", "rho1", "rho2", "ozz");
-	for(i=1; i<env->mcs+1; i++) {
+	for(i=0; i<env->mcs; i++) {
 		memset(obs0, 0, sizeof(Obs) * env->M);
 
 #pragma omp parallel for ordered num_threads(env->M)

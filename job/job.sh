@@ -1,8 +1,8 @@
 #!/bin/bash
 . /home/9yelin9/.bash_profile
 
-#$ -q openmp.q@phase09
-#$ -pe mpi 1
+#$ -q all.q@phase10
+#$ -pe mpi_1 1
 #$ -j y
 #$ -cwd
 #$ -o log/$JOB_NAME.log

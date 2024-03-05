@@ -62,3 +62,219 @@ mc done : 780s
 # Time end     : Tue Feb 27 00:40:56 KST 2024
 # Time elapsed : 1h 56m 15.018296144s
 
+-catch_rsh /opt/sge/default/spool/phase10/active_jobs/894.1/pe_hostfile
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.5000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.5000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.500000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 184s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.4500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.4500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.450000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 180s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.4000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.4000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.400000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 184s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.3500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.3500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.350000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 183s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.3000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.3000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.300000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 180s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.2500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.2500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.250000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 183s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.2000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.2000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.200000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 183s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.1500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.1500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.150000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 183s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.1000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.1000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.100000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 184s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.0500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.0500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.050000    1.000000    0.000000    0.000000   -0.000000    0.000000
+mc done : 185s
+
+# Job ID       : 894
+# Job name     : L12_M14_eqs5_mcs6.sh
+# Time start   : Sun Mar  3 11:28:36 PM KST 2024
+# Time end     : Sun Mar  3 11:59:05 PM KST 2024
+# Time elapsed : 0h 30m 29.157487811s
+
+-catch_rsh /opt/sge/default/spool/phase10/active_jobs/895.1/pe_hostfile
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.5000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.5000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.500000    0.209076  -29.403305   14.688718    0.000069    2.696152
+mc done : 528s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.4500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.4500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.450000    0.217825  -28.792173   12.984954   -0.000169    2.756782
+mc done : 527s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.4000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.4000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.400000    0.225932  -28.297721   11.326317   -0.000048    2.808234
+mc done : 534s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.3500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.3500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.350000    0.232989  -28.002798    9.809190   -0.000063    2.852599
+mc done : 528s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.3000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.3000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.300000    0.239107  -27.934505    8.376199    0.000037    2.892138
+mc done : 528s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.2500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.2500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.250000    0.243616  -28.489013    7.112910    0.000100    2.926991
+mc done : 529s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.2000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.2000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.200000    0.244403  -31.070070    6.109639    0.001395    2.950237
+mc done : 529s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.1500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.1500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.150000    0.222384  -47.367280    4.593402    0.044757    2.912213
+mc done : 530s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.1000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.1000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.100000    0.172945  -81.463700    1.204965    0.185538    2.809364
+mc done : 525s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.0500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.0500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.050000    0.152980  -96.799936    0.224865    0.246717    2.791266
+mc done : 528s
+
+# Job ID       : 895
+# Job name     : L12_M14_eqs5_mcs6.sh
+# Time start   : Mon Mar  4 12:06:05 AM KST 2024
+# Time end     : Mon Mar  4 01:34:11 AM KST 2024
+# Time elapsed : 1h 28m 6.672703656s
+
+-catch_rsh /opt/sge/default/spool/phase10/active_jobs/896.1/pe_hostfile
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+phase10
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.5000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.5000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.500000    0.132323 -117.734610   57.608720    0.006728    0.674355
+mc done : 510s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.4500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.4500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.450000    0.134518 -121.891121   52.005080    0.016904    0.881765
+mc done : 512s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.4000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.4000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.400000    0.138263 -121.855586   43.284638    0.036469    1.322672
+mc done : 504s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.3500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.3500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.350000    0.142839 -117.600071   32.813598    0.063741    1.784015
+mc done : 507s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.3000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.3000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.300000    0.144956 -115.109832   22.923292    0.103439    2.062343
+mc done : 520s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.2500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.2500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.250000    0.143947 -115.482900   13.875874    0.160320    2.233666
+mc done : 510s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.2000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.2000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.200000    0.142830 -114.996892    7.959577    0.201001    2.371115
+mc done : 508s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.1500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.1500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.150000    0.142114 -113.649462    4.167578    0.229512    2.491391
+mc done : 506s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.1000.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.1000.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.100000    0.141746 -111.605208    1.789480    0.250480    2.600678
+mc done : 514s
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/log/h1.2000_D0.0500_T0.0500.txt"
+Save as "data/L12_M14_eqs1e+05_mcs1e+06/res/h1.2000_D0.0500_T0.0500.h5"
+           T          mz        rho1        rho2         rho         ozz
+    0.050000    0.141438 -109.031590    0.433349    0.268266    2.702974
+mc done : 510s
+
+# Job ID       : 896
+# Job name     : L12_M14_eqs5_mcs6.sh
+# Time start   : Mon Mar  4 10:38:10 AM KST 2024
+# Time end     : Mon Mar  4 12:03:11 PM KST 2024
+# Time elapsed : 1h 25m .153711384s
+

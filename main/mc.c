@@ -31,7 +31,8 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	Lat **lat=(Lat**)malloc(sizeof(Lat*) * env.M); for(m=0; m<env.M; m++) lat[m] = (Lat*)malloc(sizeof(Lat) * env.N);
+	Lat **lat=(Lat**)malloc(sizeof(Lat*) * env.M);
+	for(m=0; m<env.M; m++) lat[m] = (Lat*)malloc(sizeof(Lat) * env.N);
 	Obs *obs=(Obs*)malloc(sizeof(Obs) * env.M);
 
 	time_t t0=time(NULL);
@@ -43,7 +44,8 @@ int main(int argc, char *argv[]) {
 
 	printf("%12s%12s%12s%12s%12s%12s\n", "T", "mz", "rho1", "rho2", "rho", "ozz");
 	printf("%12f%12f%12f%12f%12f%12f\n", T[env.m], obs[env.m].mz, obs[env.m].rho1, obs[env.m].rho2, RHO(env.N, T[env.m], obs[env.m].rho1, obs[env.m].rho2), obs[env.m].ozz);
-	for(m=0; m<env.M; m++) free(lat[m]); free(lat);
+	for(m=0; m<env.M; m++) free(lat[m]);
+	free(lat);
 	free(obs);
 
 	time_t t1=time(NULL);

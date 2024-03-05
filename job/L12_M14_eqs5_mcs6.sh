@@ -1,8 +1,8 @@
 #!/bin/bash
 . /home/9yelin9/.bash_profile
 
-#$ -q mpi.q@phase04
-#$ -pe mpi 14
+#$ -q all.q@phase10
+#$ -pe mpi_14 14
 #$ -j y
 #$ -cwd
 #$ -o log/$JOB_NAME.log
@@ -10,7 +10,7 @@
 t0=$(date +%s.%N)
 t0_string=$(date)
 
-for T in `seq 0.45 -0.05 0.05`
+for T in `seq 0.50 -0.05 0.05`
 do
 	./mc 12 14 1e5 1e6 1.2 0.05 $T
 done
